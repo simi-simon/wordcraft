@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WordCraft - Interactive gamified dysgraphia learning platform with letter tracing, typing practice with finger guidance, spelling, and sentence construction.">
+    <title>WordCraft - Interactive Dysgraphia Learning Adventure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- CRT Scanline Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- Reading Ruler for Dysgraphia / Reading Focus -->
+    <div id="reading-ruler" class="reading-ruler hidden"></div>
+
+    <!-- Celebration FX Canvas -->
+    <canvas id="fx-canvas" class="fx-canvas"></canvas>
+
+    <!-- Top Navigation Bar -->
+    <nav id="navbar">
+        <div class="nav-left">
+            <button id="nav-logo" onclick="router.navigate('dashboard')" aria-label="Home">
+                <span class="logo-icon">⚔️</span>
+                <span class="logo-text">WordCraft</span>
+            </button>
+        </div>
+        <div class="nav-center">
+            <button class="nav-btn" onclick="router.navigate('dashboard')" id="nav-dashboard">
+                <span>🏠</span> Quest Map
+            </button>
+            <button class="nav-btn" onclick="router.navigate('progress')" id="nav-progress">
+                <span>📊</span> Hero Stats
+            </button>
+        </div>
+        <div class="nav-right">
+            <!-- Accessibility Tools for Dysgraphia -->
+            <div class="dysgraphia-tools">
+                <button class="tool-btn" id="btn-sound" onclick="toggleSound()" title="Toggle Sound FX">
+                    <span id="sound-icon">🔊</span>
+                </button>
+                <button class="tool-btn" id="btn-ruler" onclick="toggleReadingRuler()" title="Toggle Reading Focus Ruler">
+                    <span>📏</span>
+                </button>
+                <button class="tool-btn" id="btn-font" onclick="toggleFontSize()" title="Adjust Text Size">
+                    <span>🔤</span>
+                </button>
+                <button class="tool-btn" id="btn-contrast" onclick="toggleContrast()" title="Toggle High Contrast">
+                    <span>🌓</span>
+                </button>
+            </div>
+
+            <!-- Stats HUD -->
+            <div class="nav-stats">
+                <div class="stat-item" id="nav-xp-display" title="Experience Points">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-value" id="nav-xp">0</span>
+                    <span class="stat-label">XP</span>
+                </div>
+                <div class="stat-item" id="nav-level-display" title="Player Level">
+                    <span class="stat-icon">🏆</span>
+                    <span class="stat-label">LVL</span>
+                    <span class="stat-value" id="nav-level">1</span>
+                </div>
+                <div class="stat-item" id="nav-streak-display" title="Current Exercise Streak">
+                    <span class="stat-icon">🔥</span>
+                    <span class="stat-value" id="nav-streak">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- XP Level Bar -->
+    <div id="xp-bar-container" title="Level Progression">
+        <div id="xp-bar-fill"></div>
+        <span id="xp-bar-text">0 / 100 XP</span>
+    </div>
+
+    <!-- Main Content -->
+    <main id="app-content">
+        <!-- Dashboard View -->
+        <section id="view-dashboard" class="view active">
+            <div class="hero-section">
+                <div class="hero-badge">✨ DYSGRAPHIA LEARNING ACADEMY ✨</div>
+                <h1 class="hero-title">
+                    <span class="title-line">Welcome to</span>
+                    <span class="title-main glitch" data-text="WordCraft">WordCraft</span>
+                </h1>
+                <p class="hero-subtitle">Conquer writing, typing, and spelling quests one stroke at a time!</p>
+                <div class="hero-tips-box">
+                    <span class="tip-icon">💡</span>
+                    <span class="tip-text" id="hero-tip">Tip: Take relaxed breaths, keep a gentle grip on your stylus or keys, and celebrate every small victory!</span>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>📜 Choose Your Training Realm</h2>
+                <p>Select an exercise discipline to start practicing and gain XP</p>
+            </div>
+
+            <div id="exercise-grid" class="exercise-grid">
+                <!-- Dynamically rendered -->
+            </div>
+        </section>
+
+        <!-- Exercise List View -->
+        <section id="view-exercise-list" class="view">
+            <div class="view-header">
+                <button class="back-btn" onclick="router.navigate('dashboard')">◄ Back to Realms</button>
+                <div class="header-titles">
+                    <h2 id="exercise-list-title">Exercises</h2>
+                    <p id="exercise-list-desc" class="view-subtitle"></p>
+                </div>
+            </div>
+            <div id="exercise-list" class="exercise-list">
+                <!-- Dynamically rendered -->
+            </div>
+        </section>
+
+        <!-- Exercise Play View -->
+        <section id="view-exercise" class="view">
+            <div class="view-header">
+                <button class="back-btn" id="exercise-back-btn">◄ Back</button>
+                <div class="header-titles">
+                    <h2 id="exercise-title">Exercise</h2>
+                    <p id="exercise-instruction" class="view-subtitle"></p>
+                </div>
+                <div class="exercise-meta">
+                    <span class="difficulty-badge" id="exercise-difficulty">★☆☆</span>
+                    <span class="xp-badge" id="exercise-xp-reward">+15 XP</span>
+                </div>
+            </div>
+            <div id="exercise-area" class="exercise-area">
+                <!-- Filled dynamically per exercise type -->
+            </div>
+        </section>
+
+        <!-- Result Modal -->
+        <div id="result-modal" class="modal hidden">
+            <div class="modal-backdrop" onclick="closeResultModal()"></div>
+            <div class="modal-content">
+                <div id="result-icon" class="result-icon">⭐</div>
+                <h2 id="result-title">Great Job!</h2>
+                <div id="result-score-display" class="result-score"></div>
+                <p id="result-feedback" class="result-feedback"></p>
+                <div id="result-xp" class="result-xp">+0 XP</div>
+                <div id="result-details" class="result-details"></div>
+                <div class="result-actions">
+                    <button class="btn btn-primary" id="result-next-btn">Next Quest ►</button>
+                    <button class="btn btn-secondary" id="result-retry-btn">Retry ↻</button>
+                    <button class="btn btn-ghost" id="result-back-btn">Return to List</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Up Modal -->
+        <div id="levelup-modal" class="modal hidden">
+            <div class="modal-backdrop" onclick="closeLevelUpModal()"></div>
+            <div class="modal-content levelup-content">
+                <div class="levelup-stars">✦ ✦ ✦</div>
+                <h2 class="levelup-title">LEVEL UP!</h2>
+                <div class="levelup-level" id="levelup-level">Level 2</div>
+                <p class="levelup-msg">Your writing prowess expands! New milestones unlocked!</p>
+                <button class="btn btn-primary" onclick="closeLevelUpModal()">Claim Rewards ►</button>
+            </div>
+        </div>
+
+        <!-- Progress View -->
+        <section id="view-progress" class="view">
+            <div class="view-header">
+                <button class="back-btn" onclick="router.navigate('dashboard')">◄ Back to Realms</button>
+                <div class="header-titles">
+                    <h2>📊 Master's Ledger & Achievements</h2>
+                    <p class="view-subtitle">Track your training progress, streak records, and unlocked titles</p>
+                </div>
+            </div>
+            <div id="progress-content" class="progress-content">
+                <!-- Dynamically rendered -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

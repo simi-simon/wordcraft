@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: wordcraft
+    runtime: java
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -Xmx256m -XX:+UseSerialGC -jar target/wordcraft-1.0.0.jar
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: JAVA_VERSION
+        value: 17
